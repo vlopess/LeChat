@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "668729280139",
+    "project_id": "lechat-e6ada",
+    "storage_bucket": "lechat-e6ada.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668729280139:android:3a690e0e020c4029e1b68e",
+        "android_client_info": {
+          "package_name": "com.example.lechat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEX1niJPEme4WFuPy24KGG6CF7gdDfS7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
