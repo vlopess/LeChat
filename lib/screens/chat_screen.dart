@@ -112,9 +112,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             StreamBuilder(
               stream: ref.read(message).getAllMessagesChat(args.contactChat!.chatId!), 
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                // if (snapshot.connectionState == ConnectionState.waiting) {
+                //   return const Center(child: CircularProgressIndicator());
+                // }
                 if (snapshot.hasData) {
                   var messages = snapshot.data!.docs.reversed;
                   List<Widget> historicChat = [];
