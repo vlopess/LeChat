@@ -17,7 +17,6 @@
 
 <b>Le Chat</b> é aplicação mobile para criação de grupos de conversas.
 
-![](https://github.com/vlopess/MyCollageFm/blob/master/images/tela3.png)
 
 ## Funcionalidades
 
@@ -35,11 +34,11 @@ Esse projeto foi desenvolvido utilizando as seguintes tecnologias:
 ## Demonstração
 
 ### Login e Detalhes
-![](https://github.com/vlopess/MyCollageFm/blob/master/images/t2.gif)
-![](https://github.com/vlopess/MyCollageFm/blob/master/images/t4.jpeg)
+![](https://github.com/vlopess/Lechat/blob/master/images/t2.gif)
+![](https://github.com/vlopess/Lechat/blob/master/images/t4.jpeg)
 ### Detalhes do Chat
-![](https://github.com/vlopess/MyCollageFm/blob/master/images/t1.png)
-![](https://github.com/vlopess/MyCollageFm/blob/master/images/t3.gif)
+![](https://github.com/vlopess/Lechat/blob/master/images/t1.png)
+![](https://github.com/vlopess/Lechat/blob/master/images/t3.gif)
 
 
 ## Feedback
