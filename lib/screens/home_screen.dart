@@ -134,8 +134,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       body: const ContactsList(),
       floatingActionButton: FloatingActionBubble(
         items: [
-          Bubble(icon: Icons.group_add, iconColor: Couleurs.white, title: 'Create a room', titleStyle: const TextStyle(fontSize: 12, fontFamily: 'Barlow', fontWeight: FontWeight.bold), bubbleColor: Couleurs.greyVeryLight, onPress: () {_animationController.isCompleted ? _animationController.reverse(): _animationController.forward();_openDialogCreateRoom(context);}),
-          Bubble(icon: Icons.group, iconColor: Couleurs.white, title: 'Join a room', titleStyle: const TextStyle(fontSize: 12, fontFamily: 'Barlow', fontWeight: FontWeight.bold), bubbleColor: Couleurs.greyVeryLight, onPress: () { _animationController.isCompleted ? _animationController.reverse(): _animationController.forward(); _openDialogJoinRoom(context);}),
+          Bubble(icon: Icons.group_add, iconColor: Couleurs.white, title: 'Create a room', titleStyle: const TextStyle(fontSize: 12, fontFamily: 'Barlow', fontWeight: FontWeight.bold), bubbleColor: Couleurs.greyVeryLight, onPress: () {_animationController.isCompleted ? _animationController.reverse(): _animationController.forward();_openDialogCreateRoom();}),
+          Bubble(icon: Icons.group, iconColor: Couleurs.white, title: 'Join a room', titleStyle: const TextStyle(fontSize: 12, fontFamily: 'Barlow', fontWeight: FontWeight.bold), bubbleColor: Couleurs.greyVeryLight, onPress: () { _animationController.isCompleted ? _animationController.reverse(): _animationController.forward(); _openDialogJoinRoom();}),
         ],
         onPress: () => _animationController.isCompleted ? _animationController.reverse(): _animationController.forward(),
         iconColor: Couleurs.white,
@@ -146,7 +146,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     );
   }
 
-  void _openDialogCreateRoom(BuildContext context) {
+  void _openDialogCreateRoom() {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -163,7 +163,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
     );
   }
 
-  void _openDialogJoinRoom(BuildContext context) {
+  void _openDialogJoinRoom() {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -248,9 +248,14 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialogJoinRoom> {
                 });
                 if (_formKey.currentState!.validate()) {                  
                   log(hasCodeOrUser.toString());
-                  ref.read(message).enterInChat(hasCodeOrUser['id']!).then((obj) { 
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: Connection.fromObject(obj),));
+                  hasCodeOrUser['id'] ?? '';
+                  ref.read(message).enterInChat(hasCodeOrUser['id']!).then((obj) async { 
+                    var contactChat = Connection.fromObject(obj);
+                    await ref.read(authentication).getUsers(contactChat.userIds!).then((value) async {
+                      contactChat.users = value;
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: contactChat,));                             
+                    });
                   });                  
                 }
                 setState(() {
@@ -399,7 +404,10 @@ class _ContactsListState extends ConsumerState<ContactsList> {
     return StreamBuilder(
       stream: ref.read(message).getAllChats(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return const Center(child: CircularProgressIndicator(color: Couleurs.greyVeryLight,));
+        }
+        if (snapshot.hasData) {          
           var chatList = snapshot.data!.docs.reversed;
           List<ContainerContact> chats = [];
           for (var element in chatList) {
@@ -437,8 +445,11 @@ class _ContainerContactState extends ConsumerState<ContainerContact> {
             borderRadius: const BorderRadius.all(Radius.circular(20.0)),
             elevation: 5.0,
             child: MaterialButton(
-              onPressed: () {
-                Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: widget.contactChat,));                             
+              onPressed: () async{
+                await ref.read(authentication).getUsers(widget.contactChat.userIds!).then((value) async {
+                  widget.contactChat.users = value;
+                  Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: widget.contactChat,));                             
+                });
               },
               child: ListTile(
                 title: Text(
@@ -452,7 +463,7 @@ class _ContainerContactState extends ConsumerState<ContainerContact> {
                   padding: const EdgeInsets.only(top: 6.0),
                   child: Text(
                     widget.contactChat.lastMessage?? "",
-                    style: const TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis),
+                    style: const TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis, color: Couleurs.white),
                   ),
                 ),
                 trailing: Text(
