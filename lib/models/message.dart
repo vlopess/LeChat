@@ -1,15 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:lechat/utils/couleurs.dart';
+import 'package:lechat/utils/encrypt.dart';
+import 'package:lechat/utils/message_enum.dart';
 
 class Message {
   String? userName;
   String? photoURL;
   String? message;
-  List<Text>? messages;
+  MessageEnum? type;
+  //List<Message>? messages;
   Timestamp? date;
 
-  Message({required this.userName, required this.message, required this.date, required this.photoURL});    
+  Message({required this.userName, required this.message, required this.date, required this.photoURL, required this.type});    
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -25,14 +26,17 @@ class Message {
     message = json['message'];
     date = json['date'];
     photoURL = json['photoURL'];
+      type = (json['photoURL'] as String).toEnum();
   }
 
   Message.fromObject(QueryDocumentSnapshot<Object?> json) {
-    messages = [];
+    //messages = [];
     userName = json['userName'];
-    message = json['message'];
-    messages!.insert(0,Text(message.toString(),style: const TextStyle(color: Couleurs.white, fontFamily: 'Glass Antiqua', overflow: TextOverflow.visible, fontSize: 16)));
+    //Text(Encrypt.decrypt(message.toString()),style: const TextStyle(color: Couleurs.white, fontFamily: 'Glass Antiqua', overflow: TextOverflow.visible, fontSize: 16)
     date = json['date'];
     photoURL = json['photoURL'];
+    type = (json['type'] as String).toEnum();
+    message = Encrypt.decrypt(json['message']);
+    //messages!.insert(0,Message(userName: userName, message: Encrypt.decrypt(message.toString()), date: date, photoURL: photoURL, type: type));
   }  
 }

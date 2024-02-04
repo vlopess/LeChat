@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lechat/models/user_model.dart';
+import 'package:lechat/utils/encrypt.dart';
 
 class Connection{
   String? chatId;
@@ -37,7 +38,7 @@ class Connection{
 
   Connection.fromObject(DocumentSnapshot<Object?> obj)  {
     roomName = obj['roomName'];
-    lastMessage = obj['lastMessage'] ?? '';
+    lastMessage = obj['lastMessage'] != '' ? Encrypt.decrypt(obj['lastMessage']) : '';
     chatId = obj['chatId'];
     dataCreate = obj['dataCreate'];
     userCreateID = obj['userCreateID'];
