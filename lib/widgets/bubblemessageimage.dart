@@ -5,15 +5,15 @@ import 'package:lechat/models/message.dart';
 import 'package:lechat/utils/couleurs.dart';
 import 'package:intl/intl.dart';
 
-class BubbleMessage extends StatefulWidget {
+class BubbleMessageImage extends StatefulWidget {
   final Message message;
-  const BubbleMessage({super.key, required this.message});
+  const BubbleMessageImage({super.key, required this.message});
 
   @override
-  State<BubbleMessage> createState() => _BubbleMessageState();
+  State<BubbleMessageImage> createState() => _BubbleMessageImageState();
 }
 
-class _BubbleMessageState extends State<BubbleMessage> {
+class _BubbleMessageImageState extends State<BubbleMessageImage> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -51,10 +51,18 @@ class _BubbleMessageState extends State<BubbleMessage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: SizedBox(width: width * 0.8, 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: widget.message.messages!
-                )),
+                child:ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: CachedNetworkImage(
+                      key: UniqueKey(),
+                      imageUrl: widget.message.photoURL!,
+                      fit: BoxFit.cover,
+                      // height: 40,
+                      // width: 40,
+                      placeholder: (context, url) => Container(color: Colors.black12,),
+                    ),
+                  ),
+                ),
               ),   
             ],
           )
