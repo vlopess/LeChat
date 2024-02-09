@@ -455,7 +455,7 @@ class _ButtonDeleteConnectionState extends ConsumerState<ButtonDeleteConnection>
         minWidth: double.infinity,
         onPressed: () async{
           try {
-            Navigator.pushReplacementNamed(context, HomeScreen.id);
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen(),), (route) => false);
             await ref.read(message).deleteChat(widget.chatId); 
           } catch (e) {
             Navigator.pop(context);
