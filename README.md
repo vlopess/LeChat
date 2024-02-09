@@ -35,7 +35,7 @@ Esse projeto foi desenvolvido utilizando as seguintes tecnologias:
 
 ### Login e Detalhes
 ![](https://github.com/vlopess/Lechat/blob/master/images/t2.gif)
-![](https://github.com/vlopess/Lechat/blob/master/images/t4.jpeg)
+![](https://github.com/vlopess/Lechat/blob/master/images/t2.png)
 ### Detalhes do Chat
 ![](https://github.com/vlopess/Lechat/blob/master/images/t1.jpeg)
 ![](https://github.com/vlopess/Lechat/blob/master/images/t3.gif)
