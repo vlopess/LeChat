@@ -81,7 +81,7 @@ class _BubbleMessageTextState extends State<BubbleMessageText> {
                     ),
                   ): 
                   widget.message.type?.description == MessageEnum.video.description ? 
-                  VideoPlayer(dataSource: widget.message.message!):
+                  VideoPlayerItem(dataSource: widget.message.message!):
                   const Text('data'),
                 ),
               ),   
