@@ -53,6 +53,7 @@ dependencies:
   uuid: ^4.2.2
   firebase_messaging: ^14.7.10
   video_player: ^2.6.0
+  giphy_picker: ^3.0.1
 
 dev_dependencies:
   flutter_test:

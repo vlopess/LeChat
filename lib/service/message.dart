@@ -55,11 +55,18 @@ class ChatService {
     }
   }
 
-  void sendImageGIF(File file, String chatId, MessageEnum message) async{
+  void sendImage(File file, String chatId, MessageEnum message) async{
     var user = ref.read(authentication).getCurrentUser();
     var path = 'connection/$chatId/${message.description}/${user!.uid}/${file.path}';
     String imageURL = await ref.read(firebaseStorageRepository).storeFileToFirebase(path, file);
     sendMessage(imageURL, chatId, message, path: path);
+  }
+
+  void sendGIF(String gifUrl, String chatId, MessageEnum message) async{
+    int gifUrlPartIndex = gifUrl.lastIndexOf('-') + 1;
+    String gifUrlPart = gifUrl.substring(gifUrlPartIndex);
+    String newGifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
+    sendMessage(newGifUrl, chatId, message);
   }
 
   Future<String> createChat(String roomName) async {

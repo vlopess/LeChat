@@ -81,7 +81,20 @@ class _BubbleMessageTextState extends State<BubbleMessageText> {
                     ),
                   ): 
                   widget.message.type?.description == MessageEnum.video.description ? 
-                  VideoPlayerItem(dataSource: widget.message.message!):
+                  VideoPlayerItem(dataSource: widget.message.message!): 
+                  widget.message.type?.description == MessageEnum.gif.description ? 
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5), 
+                    child: ClipRRect(borderRadius: BorderRadius.circular(5),
+                    child: CachedNetworkImage(
+                      key: UniqueKey(),
+                      imageUrl: widget.message.message!,
+                      fit: BoxFit.cover,
+                      //placeholder: (context, url) => Container(color: Colors.black12),
+                      progressIndicatorBuilder: (context, url, downloadProgress) => SizedBox(width: 10,height: 10,child: CircularProgressIndicator(color: Couleurs.primaryColor,value: downloadProgress.progress)),
+                      ),
+                    ),
+                  ):
                   const Text('data'),
                 ),
               ),   

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:giphy_picker/giphy_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lechat/components/customsnackbar.dart';
 import 'package:lechat/models/connection_chat_model.dart';
@@ -174,7 +175,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: Container(
                     decoration: const BoxDecoration(
                       color: Couleurs.greyVeryLight,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0),
+                        borderRadius: BorderRadius.all(Radius.circular(20.0),                      
                       ),
                     ),
                     child: TextFormField(
@@ -182,59 +183,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       minLines: 1,
                       style: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
                       controller: controller,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Enter the messagem',
-                        hintStyle: TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
-                        contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),         
-                        border: OutlineInputBorder(
+                        hintStyle: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),         
+                        border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 1.0),
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
                         ),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 2.0),
                         borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),               
+                        ),  
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(child : IconButton(icon: const Icon(Icons.gif, color: Couleurs.white),onPressed: () async{
+                              await _sendGIF(args.contactChat!.chatId!);
+                            },)),
+                            SizedBox(child : IconButton(icon: const Icon(Icons.camera_alt, color: Couleurs.white),onPressed: () {
+                              _sendImage(args.contactChat!.chatId!);
+                            },)),
+                            SizedBox(child : IconButton(icon: const Icon(Icons.attach_file, color: Couleurs.white),onPressed: () {
+                              _sendVideo(args.contactChat!.chatId!);
+                            },)),
+                          ],
+                        )             
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Couleurs.greyVeryLight,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0),
-                      ),
-                    ), 
-                    child: IconButton(
-                    onPressed: () {                      
-                      _sendImage(args.contactChat!.chatId!);
-                    }, 
-                    icon: const Icon(Icons.camera_alt, color: Couleurs.white,),
-                    splashColor: Couleurs.greyVeryLight,
-                    ),
-                  ),
-                ),    
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Couleurs.greyVeryLight,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0),
-                      ),
-                    ), 
-                    child: IconButton(
-                    onPressed: () {                      
-                      _sendVideo(args.contactChat!.chatId!);
-                    }, 
-                    icon: const Icon(Icons.attach_file, color: Couleurs.white,),
-                    splashColor: Couleurs.greyVeryLight,
-                    ),
-                  ),
-                ), 
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                   child: Material(
@@ -383,14 +364,49 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   _sendImage(String chatId) async {
     File? file = await pickImageFromGallery(context);
     if(file != null){
-      ref.read(message).sendImageGIF(file, chatId, MessageEnum.image);
+      ref.read(message).sendImage(file, chatId, MessageEnum.image);
+    }
+  }
+
+  _sendGIF(String chatId) async {
+    //GiphyGif? giphyGif;
+    try {
+      final giphyGif = await GiphyPicker.pickGif(
+        context: context,
+        apiKey: 'Fz7Qf0HA0yKU6bALDhQ9SZINzxmOd80A',
+      );
+      // giphyGetWrapper.getGif(
+      //   '',
+      //   context,
+      //   showGIFs: true,
+      //   showStickers: true,
+      //   showEmojis: true,
+      // );
+     
+      // giphyGif = await GiphyGet.getGif(
+      //   context: context, //Required
+      //   apiKey: "Fz7Qf0HA0yKU6bALDhQ9SZINzxmOd80A", //Required.
+      //   lang: GiphyLanguage.english, //Optional - Language for query.
+      //   randomID: "abcd", // Optional - An ID/proxy for a specific user.
+      //   tabColor:Colors.teal, // Optional- default accent color.
+      // );
+      // giphyGif = await GiphyGet.getGif(
+      //   context: context,
+      //    apiKey: 'Fz7Qf0HA0yKU6bALDhQ9SZINzxmOd80A',
+      //    tabColor:Colors.teal,
+      // );
+      if(giphyGif != null){
+        ref.read(message).sendGIF(giphyGif.url!, chatId, MessageEnum.gif);
+      } 
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(behavior: SnackBarBehavior.floating,elevation: 0, backgroundColor: Colors.transparent,content: SnackBarCustom(title: e.toString(), cor: Colors.lightBlueAccent)));                            
     }
   }
 
   _sendVideo(String chatId) async {
     File? file = await pickVideoFromGallery(context);
     if(file!= null){
-      ref.read(message).sendImageGIF(file, chatId, MessageEnum.video);
+      ref.read(message).sendImage(file, chatId, MessageEnum.video);
     }
   }
 }
