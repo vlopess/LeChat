@@ -24,4 +24,14 @@ class FirebaseStorageRepository {
       rethrow;
     }
   }
+  Future<void> deleteFileToFirebase(List urlList) async { 
+    try {      
+      for (var element in urlList) {
+        final desertRef = firebaseStorage.ref().child(element);
+        await desertRef.delete();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
