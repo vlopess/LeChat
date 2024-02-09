@@ -28,10 +28,10 @@ class ChatService {
 
   ChatService({required this.auth, required this.firestore, required this.ref});
 
-  void sendMessage(String? text, String chatId, MessageEnum message){
+  void sendMessage(String? text, String chatId, MessageEnum message, {String path = ''}){
     if(text!.isNotEmpty){
       var date = DateTime.now();
-      var messageData = {'userName': ref.read(authentication).getCurrentUser()!.displayName,'message': Encrypt.encrypt(text), 'date' : date, 'photoURL' : ref.read(authentication).getCurrentUser()!.photoURL, 'type' : message.description};            
+      var messageData = {'userName': ref.read(authentication).getCurrentUser()!.displayName,'message': Encrypt.encrypt(text), 'date' : date, 'photoURL' : ref.read(authentication).getCurrentUser()!.photoURL, 'type' : message.description, 'path' : path};            
       firestore.collection('connections').doc(chatId).collection('messages').doc().set(messageData);
       String msg;
       switch (message) {
@@ -57,8 +57,9 @@ class ChatService {
 
   void sendImageGIF(File file, String chatId, MessageEnum message) async{
     var user = ref.read(authentication).getCurrentUser();
-    String imageURL = await ref.read(firebaseStorageRepository).storeFileToFirebase('connection/${message.description}/${user!.uid}/${file.path}', file);
-    sendMessage(imageURL, chatId, message);
+    var path = 'connection/$chatId/${message.description}/${user!.uid}/${file.path}';
+    String imageURL = await ref.read(firebaseStorageRepository).storeFileToFirebase(path, file);
+    sendMessage(imageURL, chatId, message, path: path);
   }
 
   Future<String> createChat(String roomName) async {
@@ -133,6 +134,13 @@ class ChatService {
 
   Future<void> deleteChat(String chatId) async {
     try {
+      var list = await getAllMessagesFileChat(chatId);
+      List listUrlFiles = [];
+      for (var element in list.docs) {
+        listUrlFiles.add(element['path']);
+      }    
+      //var teste = listUrlFiles.docs.first['photoURL'];
+      ref.read(firebaseStorageRepository).deleteFileToFirebase(listUrlFiles);
       await firestore.collection('connections').doc(chatId).delete();
     } catch (e) {
       throw "Não foi possível sair";
@@ -143,6 +151,11 @@ class ChatService {
     var user = ref.read(authentication).getCurrentUser()!;
     var teste =  firestore.collection('connections').where('users', arrayContains: user.uid.toString()).snapshots();    
     return teste;
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getAllMessagesFileChat(String chatId) {    
+    Future<QuerySnapshot<Map<String, dynamic>>> data = firestore.collection('connections').doc(chatId).collection('messages').where("type", isNotEqualTo: "text").get();
+    return data;
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessagesChat(String chatId){ 
