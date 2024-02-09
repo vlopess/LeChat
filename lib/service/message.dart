@@ -166,7 +166,10 @@ class ChatService {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getAllMessagesFileChat(String chatId) {    
-    Future<QuerySnapshot<Map<String, dynamic>>> data = firestore.collection('connections').doc(chatId).collection('messages').where("type", isNotEqualTo: "text").get();
+    Future<QuerySnapshot<Map<String, dynamic>>> data = firestore.collection('connections')
+    .doc(chatId).collection('messages')
+    .where("path", isNotEqualTo: "")
+    .get();
     return data;
   }
 
