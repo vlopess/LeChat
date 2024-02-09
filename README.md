@@ -1,18 +1,18 @@
-                                                                                        _                       
-                                                                                        \`*-.                   
-                                                                                         )  _`-.                
-                                                                                        .  : `. .               
-                                                                                        : _   '  \              
-                                                                                        ; *` _.   `*-._         
-                                                                                        `-.-'          `-.      
-                                                                                          ;       `       `.    
-                                                                                          :.       .        \   
-                                                                                          . \  .   :   .-'   .  
-                                                                                          '  `+.;  ;  '      :  
-                                                                                          :  '  |    ;       ;-.
-                                                                                          ; '   : :`-:     _.`* ;
-    [le chat]                                                                          .*' /  .*' ; .*`- +'  `*'
-                                                                                       `*-*   `*-*  `*-*'       
+                                                                        _                       
+                                                                        \`*-.                   
+                                                                         )  _`-.                
+                                                                        .  : `. .               
+                                                                        : _   '  \              
+                                                                        ; *` _.   `*-._         
+                                                                        `-.-'          `-.      
+                                                                          ;       `       `.    
+                                                                          :.       .        \   
+                                                                          . \  .   :   .-'   .  
+                                                                          '  `+.;  ;  '      :  
+                                                                          :  '  |    ;       ;-.
+    [le chat]                                                             ; '   : :`-:     _.`* ;
+                                                                       .*' /  .*' ; .*`- +'  `*'
+                                                                       `*-*   `*-*  `*-*'       
 ![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=DESENVOLVIMENTO&color=GREEN&style=for-the-badge)
 
 <b>Le Chat</b> é aplicação mobile para criação de grupos de conversas.
