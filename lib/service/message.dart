@@ -139,8 +139,13 @@ class ChatService {
       for (var element in list.docs) {
         listUrlFiles.add(element['path']);
       }    
-      //var teste = listUrlFiles.docs.first['photoURL'];
-      ref.read(firebaseStorageRepository).deleteFileToFirebase(listUrlFiles);
+      if(listUrlFiles.isNotEmpty){
+        ref.read(firebaseStorageRepository).deleteFileToFirebase(listUrlFiles);
+      }      
+      var documents = await firestore.collection('connections').doc(chatId).collection('messages').get();
+      for (DocumentSnapshot doc in documents.docs) {
+        await doc.reference.delete();
+      }
       await firestore.collection('connections').doc(chatId).delete();
     } catch (e) {
       throw "Não foi possível sair";
