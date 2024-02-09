@@ -45,6 +45,10 @@ Esse projeto foi desenvolvido utilizando as seguintes tecnologias:
 
 Se você tiver algum feedback, por favor me deixe saber por meio de victorldev8@gmail.com
 
+## Contribuição
+
+Se você gostaria de contribuir para este projeto, sinta-se à vontade para abrir um problema ou enviar um pedido de pull. Estamos abertos a melhorias e sugestões para tornar esta ferramenta ainda mais útil e precisa.
+
 ## License
 
 This project is under MIT license. See the [LICENSE](LICENSE.md) file for more details.
