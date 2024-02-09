@@ -1,21 +1,21 @@
-import 'package:cached_video_player/cached_video_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
-class VideoPlayer extends StatefulWidget {
+class VideoPlayerItem extends StatefulWidget {
   final String dataSource;
-  const VideoPlayer({super.key, required this.dataSource});
+  const VideoPlayerItem({super.key, required this.dataSource});
 
   @override
-  State<VideoPlayer> createState() => _VideoPlayerState();
+  State<VideoPlayerItem> createState() => _VideoPlayerItemState();
 }
 
-class _VideoPlayerState extends State<VideoPlayer> {
-  late CachedVideoPlayerController controller;
+class _VideoPlayerItemState extends State<VideoPlayerItem> {
+  late VideoPlayerController controller;
   bool isplay = false;
   @override
   void initState() {    
     super.initState();
-    controller = CachedVideoPlayerController.network(widget.dataSource)..initialize().then((value) {
+    controller = VideoPlayerController.network(widget.dataSource)..initialize().then((value) {
         controller.setVolume(1);
         controller.setLooping(true);
     });
@@ -29,14 +29,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: 16 / 16,
       child: Stack(
         children: [
           GestureDetector(
             onTap: _onTapPlay,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(15),
-              child: CachedVideoPlayer(controller)
+              child: VideoPlayer(controller)
             ),
           ),
           Visibility(
