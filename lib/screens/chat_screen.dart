@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, must_be_immutable
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,221 +21,224 @@ import 'package:lechat/widgets/dividerdata.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   static String id = 'Chat_screen';  
-  final Connection? contactChat;
-  const ChatScreen( {super.key, this.contactChat});
+  final String? chatID;
+  Connection? contactChat;
+  ChatScreen( {super.key, this.contactChat, this.chatID});
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
+  
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
-  TextEditingController controller = TextEditingController();  
+  TextEditingController controller = TextEditingController();    
+  late Future<Connection?> chatScreenFuture;
+  @override
+  void initState() {    
+    super.initState();
+    chatScreenFuture = fetchData(widget.chatID!);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as ChatScreen; 
+    //final args = ModalRoute.of(context)!.settings.arguments as ChatScreen; 
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Couleurs.greyDark,
-      appBar: AppBar(
-         foregroundColor: Colors.grey,          
-          elevation: 0,
-          backgroundColor: Couleurs.greyVeryLight,
-          centerTitle: false,
-          title: SizedBox(
-            width: width,
-            child: TextButton(
-              onPressed: () async {
-                Usuario? user;                
-                await ref.read(authentication).getUserById(args.contactChat!.userCreateID).then((value) async {
-                  user = value;                  
-                }).then((value) => showModalBottomSheet(
-                    barrierColor: Colors.black.withOpacity(0.5),
-                    useRootNavigator: true,
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (context) {
-                    return modalBottomContent(height, width, args.contactChat, user!);
-                  })
-                );                
-              },
-              child: Column(
-                children: [
-                  Text(
-                    args.contactChat!.roomName!,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Barlow'
-                    ),
-                  ),
-                  const Text(
-                    'Tap to see group informations',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                      fontFamily: 'Barlow'
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // actions: [
-          //   PopupMenuButton(
-          //     tooltip: '',
-          //     itemBuilder: (BuildContext context)  => [ 
-          //       PopupMenuItem(
-          //         value: '',
-          //         child: TextButton(
-          //           onPressed: () async { 
-          //             var code = args.contactChat!.chatId?.split('_');
-          //             await Clipboard.setData(ClipboardData(text: code![0].toString()));
-          //           }, 
-          //           child: const Row(
-          //             children: [
-          //               Icon(Icons.copy),
-          //               Text("Copy Code", style: TextStyle(color: Couleurs.greyVeryLight,fontWeight: FontWeight.bold,fontFamily: 'Barlow'),),
-          //             ],
-          //           ),
-          //         )
-          //       ),                    
-          //     ],
-          //   )
-          // ],
-      ),
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            StreamBuilder(
-              stream: ref.read(message).verificarUser(args.contactChat!.chatId!), 
-              builder: (context, snapshot) {                
-                if (snapshot.hasData) {          
-                  var doc =  snapshot.data!.docs;
-                  return doc.isEmpty? const DialogRemovedUser() : StreamBuilder(
-                    stream: ref.read(message).getAllMessagesChat(args.contactChat!.chatId!),
-                    builder: (context, snapshot) {                                         
-                      if (snapshot.hasData) {
-                        var messages = snapshot.data!.docs.reversed;
-                        List<Widget> historicChat = [];
-                        List<Message>? list = [];
-                        Message? last;
-                        for (var message in messages) {
-                          var bubbleMessage = Message.fromObject(message);   
-                          if (last?.userName != null){                      
-                            if (last?.userName == bubbleMessage.userName && last!.date!.toDate().day == bubbleMessage.date!.toDate().day) {
-                              historicChat.add(BubbleMessageText(message: bubbleMessage,isSameUser: false,));    
-                              //list.add(Message(userName: bubbleMessage.userName, message: Encrypt.decrypt(bubbleMessage.message.toString()), date: bubbleMessage.date, photoURL: bubbleMessage.photoURL, type: bubbleMessage.type));  
-                              //Text(Encrypt.decrypt(bubbleMessage.message.toString()), style: const TextStyle(color: Couleurs.white, fontFamily: 'Glass Antiqua', overflow: TextOverflow.visible, fontSize: 16))
-                            }else {
-                              // for (var element in list) {
-                              //   last!.messages!.insert(0,element);                        
-                              // }                        
-                              historicChat.add(BubbleMessageText(message: bubbleMessage,isSameUser: false,));    
-                              if(bubbleMessage.date!.toDate().day != bubbleMessage.date!.toDate().day) historicChat.add(DividerData(date: bubbleMessage.date,)); 
-                              list.clear(); 
-                              last = bubbleMessage; 
-                            } 
-                          }else{
-                            last = bubbleMessage;
-                            historicChat.add(BubbleMessageText(message: last,isSameUser: false,));    
-                          }
-                          // if(messages.last == message) {
-                          //   for (var element in list) {
-                          //     last.messages!.insert(0,element);                        
-                          //   }
-                          //   if(last.date!.toDate().day != bubbleMessage.date!.toDate().day) historicChat.add(DividerData(date: last.date,)); 
-                          //   historicChat.add(BubbleMessageText(message: last));    
-                          //   historicChat.add(DividerData(date: bubbleMessage.date,)); 
-                          // }
-                                          
-                        }
-                        return Expanded(
-                          child: ListView(
-                            physics: const BouncingScrollPhysics(), 
-                            children: historicChat.reversed.toList(),
+
+    return FutureBuilder(
+      future: chatScreenFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());  
+        }
+        if (snapshot.hasData) {
+          var contactChat = snapshot.data;
+          return Scaffold(
+            backgroundColor: Couleurs.greyDark,
+            appBar: AppBar(
+              foregroundColor: Colors.grey,          
+                elevation: 0,
+                backgroundColor: Couleurs.greyVeryLight,
+                centerTitle: false,
+                title: SizedBox(
+                  width: width,
+                  child: TextButton(
+                    onPressed: () async {
+                      Usuario? user;                
+                      await ref.read(authentication).getUserById(contactChat.userCreateID).then((value) async {
+                        user = value;                  
+                      }).then((value) => showModalBottomSheet(
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          useRootNavigator: true,
+                          isScrollControlled: true,
+                          context: context,
+                          builder: (context) {
+                          return modalBottomContent(height, width, contactChat, user!);
+                        })
+                      );                
+                    },
+                    child: Column(
+                      children: [
+                        Text(
+                          contactChat!.roomName!,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Barlow'
                           ),
+                        ),
+                        const Text(
+                          'Tap to see group informations',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontFamily: 'Barlow'
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ),
+            body: SafeArea(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StreamBuilder(
+                    stream: ref.read(message).verificarUser(contactChat.chatId!), 
+                    builder: (context, snapshot) {                
+                      if (snapshot.hasData) {          
+                        var doc =  snapshot.data!.docs;
+                        return doc.isEmpty? const DialogRemovedUser() : StreamBuilder(
+                          stream: ref.read(message).getAllMessagesChat(contactChat.chatId!),
+                          builder: (context, snapshot) {                                         
+                            if (snapshot.hasData) {
+                              var messages = snapshot.data!.docs.reversed;
+                              List<Widget> historicChat = [];
+                              List<Message>? list = [];
+                              Message? last;
+                              for (var message in messages) {
+                                var bubbleMessage = Message.fromObject(message);   
+                                if (last?.userName != null){                      
+                                  if (last?.userName == bubbleMessage.userName && last!.date!.toDate().day == bubbleMessage.date!.toDate().day) {
+                                    historicChat.add(BubbleMessageText(message: bubbleMessage,isSameUser: false,));    
+                                    //list.add(Message(userName: bubbleMessage.userName, message: Encrypt.decrypt(bubbleMessage.message.toString()), date: bubbleMessage.date, photoURL: bubbleMessage.photoURL, type: bubbleMessage.type));  
+                                    //Text(Encrypt.decrypt(bubbleMessage.message.toString()), style: const TextStyle(color: Couleurs.white, fontFamily: 'Glass Antiqua', overflow: TextOverflow.visible, fontSize: 16))
+                                  }else {
+                                    // for (var element in list) {
+                                    //   last!.messages!.insert(0,element);                        
+                                    // }                        
+                                    historicChat.add(BubbleMessageText(message: bubbleMessage,isSameUser: false,));    
+                                    if(bubbleMessage.date!.toDate().day != bubbleMessage.date!.toDate().day) historicChat.add(DividerData(date: bubbleMessage.date,)); 
+                                    list.clear(); 
+                                    last = bubbleMessage; 
+                                  } 
+                                }else{
+                                  last = bubbleMessage;
+                                  historicChat.add(BubbleMessageText(message: last,isSameUser: false,));    
+                                }
+                                // if(messages.last == message) {
+                                //   for (var element in list) {
+                                //     last.messages!.insert(0,element);                        
+                                //   }
+                                //   if(last.date!.toDate().day != bubbleMessage.date!.toDate().day) historicChat.add(DividerData(date: last.date,)); 
+                                //   historicChat.add(BubbleMessageText(message: last));    
+                                //   historicChat.add(DividerData(date: bubbleMessage.date,)); 
+                                // }
+                                                
+                              }
+                              return Expanded(
+                                child: ListView(
+                                  physics: const BouncingScrollPhysics(), 
+                                  children: historicChat.reversed.toList(),
+                                ),
+                              );
+                            }
+                            return Container();
+                          },
                         );
                       }
                       return Container();
                     },
-                  );
-                }
-                return Container();
-              },
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [                
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Couleurs.greyVeryLight,
-                        borderRadius: BorderRadius.all(Radius.circular(20.0),                      
-                      ),
-                    ),
-                    child: TextFormField(
-                      maxLines: 10,
-                      minLines: 1,
-                      style: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
-                      controller: controller,
-                      decoration: InputDecoration(
-                        hintText: 'Enter the messagem',
-                        hintStyle: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),         
-                        border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 1.0),
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 2.0),
-                        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                        ),  
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(child : IconButton(icon: const Icon(Icons.gif, color: Couleurs.white),onPressed: () async{
-                              await _sendGIF(args.contactChat!.chatId!);
-                            },)),
-                            SizedBox(child : IconButton(icon: const Icon(Icons.camera_alt, color: Couleurs.white),onPressed: () {
-                              _sendImage(args.contactChat!.chatId!);
-                            },)),
-                            SizedBox(child : IconButton(icon: const Icon(Icons.attach_file, color: Couleurs.white),onPressed: () {
-                              _sendVideo(args.contactChat!.chatId!);
-                            },)),
-                          ],
-                        )             
-                      ),
-                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  child: Material(
-                    color: Couleurs.greyVeryLight,                
-                    borderRadius: const BorderRadius.all(Radius.circular(50.0)),                    
-                    child: MaterialButton(
-                      height: 50,
-                      minWidth: 25,
-                      onPressed: () => sendMessage(args.contactChat!.chatId!),
-                      child: const Icon(Icons.send, color: Couleurs.white,size: 20),
-                      )
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [                
+                      Expanded(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Couleurs.greyVeryLight,
+                              borderRadius: BorderRadius.all(Radius.circular(20.0),                      
+                            ),
+                          ),
+                          child: TextFormField(
+                            maxLines: 10,
+                            minLines: 1,
+                            style: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
+                            controller: controller,
+                            decoration: InputDecoration(
+                              hintText: 'Enter the messagem',
+                              hintStyle: const TextStyle(color: Couleurs.white,fontFamily: 'Glass Antiqua'),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),         
+                              border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 1.0),
+                              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                              ),
+                              focusedBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(color: Couleurs.greyVeryLight, width: 2.0),
+                              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                              ),  
+                              suffixIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(child : IconButton(icon: const Icon(Icons.gif, color: Couleurs.white),onPressed: () async{
+                                    await _sendGIF(contactChat.chatId!);
+                                  },)),
+                                  SizedBox(child : IconButton(icon: const Icon(Icons.camera_alt, color: Couleurs.white),onPressed: () {
+                                    _sendImage(contactChat.chatId!);
+                                  },)),
+                                  SizedBox(child : IconButton(icon: const Icon(Icons.attach_file, color: Couleurs.white),onPressed: () {
+                                    _sendVideo(contactChat.chatId!);
+                                  },)),
+                                ],
+                              )             
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                        child: Material(
+                          color: Couleurs.greyVeryLight,                
+                          borderRadius: const BorderRadius.all(Radius.circular(50.0)),                    
+                          child: MaterialButton(
+                            height: 50,
+                            minWidth: 25,
+                            onPressed: () => sendMessage(contactChat.chatId!),
+                            child: const Icon(Icons.send, color: Couleurs.white,size: 20),
+                            )
+                        )
+                      ),      
+                    ],
                   )
-                ),      
-              ],
-            )
-          ],
-        )
-      ),
+                ],
+              )
+            ),
+          );
+        }
+        return Container();
+      },      
     );
   }
+
+  Future<Connection> fetchData(String chatId) {
+    return ref.read(message).getChatById(chatId);
+  } 
 
   Container modalBottomContent(double height, double width, Connection? contactChat,Usuario userCreate) {    
     String? userID = ref.read(authentication).getCurrentUser()?.uid;    
@@ -670,7 +673,7 @@ class _CustomAlertDialogEditNameState extends ConsumerState<CustomAlertDialogEdi
                     await ref.read(authentication).getUsers(contactChat.userIds!).then((value) async {
                       contactChat.users = value;
                       Navigator.pop(context);
-                      Navigator.pushReplacementNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: contactChat,));                             
+                      Navigator.pushReplacement (context, MaterialPageRoute(builder: (context) => ChatScreen(chatID: widget.contactChat!.chatId!),));                             
                     });}
                   );
                 }
