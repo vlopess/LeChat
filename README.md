@@ -24,6 +24,7 @@
 - [x] Criação de grupo e possíbilidade de entrar em outros
 - [x] Chat em tempo real
 - [x] Envio de Images/GIF/Video
+- [x] Envio de Notificação
 
 
 ## Tecnologias utilizadas
