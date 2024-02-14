@@ -14,7 +14,7 @@ class Connection{
   List<Usuario>? users;
   List<dynamic>? userIds;
 
-  Connection({required this.roomName, required this.lastMessage, required this.dataCreate}); 
+  Connection({required this.chatId, required this.userCreateID}); 
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
