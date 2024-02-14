@@ -4,8 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:lechat/models/connection_chat_model.dart';
 import 'package:lechat/repositories/firebase_storage_repository.dart';
 import 'package:lechat/service/auth.dart';
+import 'package:lechat/service/firebaseapi.dart';
 import 'package:lechat/utils/encrypt.dart';
 import 'package:lechat/utils/message_enum.dart';
 
@@ -28,7 +30,7 @@ class ChatService {
 
   ChatService({required this.auth, required this.firestore, required this.ref});
 
-  void sendMessage(String? text, String chatId, MessageEnum message, {String path = ''}){
+  void sendMessage(String? text, String chatId, MessageEnum message, {String path = ''}) async{
     if(text!.isNotEmpty){
       var date = DateTime.now();
       var messageData = {'userName': ref.read(authentication).getCurrentUser()!.displayName,'message': Encrypt.encrypt(text), 'date' : date, 'photoURL' : ref.read(authentication).getCurrentUser()!.photoURL, 'type' : message.description, 'path' : path};            
@@ -52,6 +54,11 @@ class ChatService {
           break;
       }
       firestore.collection('connections').doc(chatId).update({'lastMessage' : Encrypt.encrypt(msg), 'date' : DateFormat('kk:mm').format(date)});
+      var connection = await getChatById(chatId);
+      var user = ref.read(authentication).getCurrentUser();
+      var myself = connection.users!.firstWhere((e) => e.uid == user!.uid);
+      connection.users!.remove(myself);
+      FirebaseApi().sendPushNotification(connection: connection, message: "${user!.displayName}: $msg");      
     }
   }
 
@@ -89,12 +96,12 @@ class ChatService {
     return {"id" : data.id, 'value': null};
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> enterInChat(String chatId) async {
+  Future<Connection> enterInChat(String chatId) async {
     var newdata = {'users' : userList};
     await firestore.collection('connections').doc(chatId).update(newdata);
-    var doc = await firestore.collection('connections').doc(chatId).get();
     userList!.clear();
-    return doc; 
+    var obj = await getChatById(chatId);
+    return obj; 
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> updateNameConnection(String chatId, String newName) async {
@@ -175,6 +182,15 @@ class ChatService {
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessagesChat(String chatId){ 
     return firestore.collection('connections').doc(chatId).collection('messages').orderBy("date", descending: false).snapshots();
+  }
+
+  Future<Connection> getChatById(String chatId) async { 
+    var obj = await firestore.collection('connections').doc(chatId).get();   
+    var chatData = Connection.fromObject(obj); 
+    await ref.read(authentication).getUsers(chatData.userIds!).then((value) async {
+      chatData.users = value;                           
+    });
+    return chatData;
   }
   
   gerarCode() {
