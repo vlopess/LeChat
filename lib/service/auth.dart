@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lechat/models/user_model.dart';
 import 'package:lechat/repositories/firebase_storage_repository.dart';
 import 'package:lechat/screens/home_screen.dart';
+import 'package:lechat/service/firebaseapi.dart';
 import 'package:riverpod/riverpod.dart';
 
 final authentication = Provider(
@@ -65,7 +67,11 @@ class Authentication {
   
 
   Future<UserCredential> signInWithEmailAndPassword({required String email,required String password}) async {
-    return await auth.signInWithEmailAndPassword(email: email, password: password);
+    var token = await FirebaseApi().getToken();
+    log(token.toString());
+    var userCredential =  await auth.signInWithEmailAndPassword(email: email, password: password);    
+    await firestore.collection('users').doc(userCredential.user!.uid).update({'token' : token});
+    return userCredential;
   }
 
   Future<void> updateprofile(String displayName, String? photoURL) async {
@@ -90,7 +96,8 @@ class Authentication {
         profilePic = await ref.read(firebaseStorageRepository).storeFileToFirebase('profilePic/$uid', profileImage);
       }
       await updateprofile(name,profilePic);
-      var user = Usuario(name: name, uid: uid, profilePic: profilePic);
+      var token = await FirebaseApi().getToken();
+      var user = Usuario(name: name, uid: uid, profilePic: profilePic, token: token);
       await firestore.collection('users').doc(uid).set(user.toJson()).then(
         (value) => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen(),), (route) => false)
       ); 
