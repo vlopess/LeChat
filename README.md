@@ -43,7 +43,7 @@ Esse projeto foi desenvolvido utilizando as seguintes tecnologias:
 ### Imagens/videos/gif
 ![](https://github.com/vlopess/Lechat/blob/master/images/g3.gif)
 ### Notificações
-![](https://github.com/vlopess/Lechat/blob/master/images/g4.gif)
+![](https://github.com/vlopess/Lechat/blob/master/images/gif4.gif)
 
 
 
