@@ -30,14 +30,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   void getCurrentUser() async {    
     try {
       final user = ref.read(authentication).getCurrentUser();
-      log(user.toString());
       if(user != null){
         loggedInUser = user;
       }
     } catch (e) {
       //log(e.toString());
     }
-  }
+  }  
 
   @override
   void initState(){        
@@ -249,13 +248,10 @@ class _CustomAlertDialogState extends ConsumerState<CustomAlertDialogJoinRoom> {
                 if (_formKey.currentState!.validate()) {                  
                   log(hasCodeOrUser.toString());
                   hasCodeOrUser['id'] ?? '';
-                  ref.read(message).enterInChat(hasCodeOrUser['id']!).then((obj) async { 
-                    var contactChat = Connection.fromObject(obj);
-                    await ref.read(authentication).getUsers(contactChat.userIds!).then((value) async {
-                      contactChat.users = value;
+                  ref.read(message).enterInChat(hasCodeOrUser['id']!).then((_) {                     
                       Navigator.pop(context);
-                      Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: contactChat,));                             
-                    });
+                      //Navigator.pushNamed(context, ChatScreen.id, arguments: hasCodeOrUser['id']); 
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatID: hasCodeOrUser['id']),));
                   });                  
                 }
                 setState(() {
@@ -446,9 +442,9 @@ class _ContainerContactState extends ConsumerState<ContainerContact> {
             elevation: 5.0,
             child: MaterialButton(
               onPressed: () async{
-                await ref.read(authentication).getUsers(widget.contactChat.userIds!).then((value) async {
-                  widget.contactChat.users = value;
-                  Navigator.pushNamed(context, ChatScreen.id, arguments: ChatScreen(contactChat: widget.contactChat,));                             
+                await ref.read(message).getChatById(widget.contactChat.chatId!).then((_) async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatID: widget.contactChat.chatId),));
+                  //Navigator.pushNamed(context, ChatScreen.id, arguments: widget.contactChat.chatId);                             
                 });
               },
               child: ListTile(
@@ -456,21 +452,23 @@ class _ContainerContactState extends ConsumerState<ContainerContact> {
                   widget.contactChat.roomName!,
                   style: const TextStyle(
                     fontSize: 18,
-                    color: Couleurs.white
+                    color: Couleurs.white,
+                    fontFamily: 'Glass Antiqua'
                   ),
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 6.0),
                   child: Text(
                     widget.contactChat.lastMessage?? "",
-                    style: const TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis, color: Couleurs.white),
+                    style: const TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis, color: Couleurs.white, fontFamily: 'Glass Antiqua'),
                   ),
                 ),
                 trailing: Text(
                   widget.contactChat.date!,
                   style: const TextStyle(
                     color: Colors.grey,
-                    fontSize: 13,
+                    fontSize: 16,
+                    fontFamily: 'Glass Antiqua'
                   ),
                 ),
               ),
