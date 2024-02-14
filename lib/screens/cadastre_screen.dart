@@ -35,6 +35,7 @@ class _CadastreScreenState extends ConsumerState<CadastreScreen> {
     });
     try {
       if (widget.userName != null) {
+        widget.urlProfile ??= 'https://th.bing.com/th/id/OIP.UY0H6jNLhhjKymJWT6HsPwHaHa?rs=1&pid=ImgDetMain';
         ref.read(authentication).saveUserData(name: widget.userName!, profileImage: image,profilePic: widget.urlProfile,context: context);
       }      
     } catch (e) {
