@@ -39,8 +39,10 @@ Esse projeto foi desenvolvido utilizando as seguintes tecnologias:
 ### Detalhes do Chat
 ![](https://github.com/vlopess/Lechat/blob/master/images/t1.png)
 ![](https://github.com/vlopess/Lechat/blob/master/images/t3.gif)
-### Envio de imagens/videos/gif
+### Imagens/videos/gif
 ![](https://github.com/vlopess/Lechat/blob/master/images/g3.gif)
+### Notificações
+![](https://github.com/vlopess/Lechat/blob/master/images/g4.gif)
 
 
 
